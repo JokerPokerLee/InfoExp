@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 
-#define LENGTH 10
-#define FORLEN 10
+#define LENGTH 30
+#define FORLEN 30
 
 using namespace std;
 
@@ -164,12 +164,14 @@ class GaussElim {
 
 private:
 	int n;
+	vector<int> v;
 	vector< bitset<FORLEN> > func;
 
 public:
 	GaussElim(int n) : n(n) {}
 	void addFunc(bitset<FORLEN> newFunc) {
 		func.push_back(newFunc);
+		v.push_back(1);
 	}
 	int funcNum() {
 		return func.size();
@@ -183,6 +185,7 @@ public:
 			for (j = pre; j < m; j++) {
 				if (func[j].test(i)) {
 					swap(func[pre], func[j]);
+					swap(v[pre], v[j]);
 					break;
 				}
 			}
@@ -193,6 +196,7 @@ public:
 			for (int j = 0; j < m; j++) {
 				if (j != pre && func[j].test(i)) {
 					func[j] ^= func[pre];
+					v[j] ^= v[pre];
 				}
 			}
 			pre++;
@@ -201,12 +205,13 @@ public:
 		}
 		while (func.size() > pre) {
 			func.pop_back();
+			v.pop_back();
 		}
 		return res;
 	}
 	void print() {
 		for (int i = 0; i < func.size(); i++) {
-			cout << func[i] << endl;
+			cout << func[i] << "---" << v[i] << endl;
 		}
 	}
 };
@@ -221,14 +226,14 @@ int main() {
 	LFSR lfsr;
 	lfsr.init(n);
 
-	string tap = "0000001001";
+	string tap = "100101000000000000000000000001";
 	lfsr.setTap(tap);
 
 	string key = "";
 	for (int i = 0; i < n; i++) {
 		key += '0' + (rand() & 1);
 	}
-	key = "1000000000";
+	key = "100101000000000000000000000001";
 	lfsr.setReg(key);
 
 	string keyStream = "";
@@ -240,13 +245,15 @@ int main() {
 	// wait to be defined
 	// used to generate key stream
 	BoolFunc f(n);
-	f.addPN({1, 3, 0});
-	f.addPN({1, 3, 2});
+	f.addPN({0, 1, 3});
+	f.addPN({0, 2, 4});
+	f.addPN({0, 5, 9});
+	f.addPN({0, 6, 8});
+	f.addPN({0, 7});
 
 	// used to degration f
 	BoolFunc g(n);
-	g.addPN({1});
-	g.addPN({3});
+	g.addPN({0});
 
 	// wait to be defined
 	// changed by lfsr matrix
@@ -271,6 +278,18 @@ int main() {
 		// update lfsr
 		lfsr.shift(1);
 
+		if (keyBit) {
+			bitset<FORLEN> newFunc = g.calc(state);
+			// cout << newFunc << endl;
+			EqGrp.addFunc(newFunc);
+			if (EqGrp.funcNum() > n + 10) {
+				if (EqGrp.solve()) {
+					cout << "hahaha" << endl;
+					break;
+				}
+			}
+		}
+
 		// update state matrix
 		bitset<LENGTH> newBit;
 		newBit.reset();
@@ -284,24 +303,13 @@ int main() {
 		}
 		state[0] = newBit;
 
-		if (keyBit) {
-			bitset<FORLEN> newFunc = g.calc(state);
-			EqGrp.addFunc(newFunc);
-			if (EqGrp.funcNum() > n + 10) {
-				if (EqGrp.solve()) {
-					cout << "hahaha" << endl;
-					break;
-				}
-			}
-		}
-
 		// cout << "---------" << endl;
 		// for (int i = 0; i < n; i++) {
 		// 	cout << state[i] << endl;
 		// }
 		// cout << "---------" << endl;
 
-		if (tried++ > 2000000) {
+		if (tried++ > 20000) {
 			break;
 		}
 	}
