@@ -63,8 +63,9 @@ public:
 		string res = "";
 		int y = 0;
 		int len = subtrahend.getLength();
-		for (int i = 0; i < ; i++) {
-
+		for (int i = 0; i < len; i++) {
+			int x = (strNum[i] & 1) + (subtrahend[i] & 1) + y;
+			if ((x && !(strNum[i] & 1)) || (y || (subtrahend[i] & 1)))
 		}
 	}
 };
