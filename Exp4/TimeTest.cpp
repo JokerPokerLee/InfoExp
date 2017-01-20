@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 
-#define MINI	2
+#define MINI	100
 #define STR		1
 
 using namespace std;
@@ -208,7 +208,8 @@ int main() {
 		toBit(b);
 		BigInteger s(a), t(b);
 		int sta = clock();
-		mul(s, t);
+		// mul(s, t);
+		s * t;
 		std::cout << std::setprecision(3) << 1.0 * (clock() - sta) / CLOCKS_PER_SEC << std::endl;
 	}
 	return 0;
